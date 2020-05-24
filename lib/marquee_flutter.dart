@@ -11,12 +11,16 @@ class MarqueeWidget extends StatefulWidget{
   final Axis scrollAxis;
   ///空白部分占控件的百分比
   final double ratioOfBlankToScreen;
+  final bool wholeVertical;
+  final int speed;
 
   MarqueeWidget({
     @required this.text,
     this.textStyle,
     this.scrollAxis:Axis.horizontal,
     this.ratioOfBlankToScreen:0.25,
+    this.wholeVertical: false,
+    this.speed: 50
   }) :assert(text!=null,);
 
   @override
@@ -33,13 +37,18 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
   double position=0.0;
   Timer timer;
   final double _moveDistance=3.0;
-  final int _timerRest=100;
+  int _timerRest=30;
   GlobalKey _key=GlobalKey();
 
 
   @override
   void initState() {
     super.initState();
+    int speed = widget.speed;
+    if (speed > 100) {
+      speed = 100;
+    }
+    _timerRest = (30 + 150 * (1 - speed / 100)).toInt();
     scroController=new ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((callback){
       startTimer();
@@ -76,7 +85,7 @@ class MarqueeWidgetState extends State<MarqueeWidget> with SingleTickerProviderS
   }
 
   Widget getBothEndsChild(){
-    if(widget.scrollAxis ==Axis.vertical){
+    if(widget.scrollAxis == Axis.vertical && !widget.wholeVertical){
       String newString=widget.text.split("").join("\n");
       return new Center(
         child: new Text(newString,style: widget.textStyle,textAlign: TextAlign.center,),
